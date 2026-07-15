@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ — VaxCare Pro</title>
+  <link rel="stylesheet" href="file.css"/>
+  <style>
+    .faq-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px 5%;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    /* SIDEBAR CATEGORIES */
+    .faq-sidebar {
+      position: sticky;
+      top: 100px;
+    }
+    .faq-sidebar h3 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 16px;
+      font-family: var(--font-body);
+    }
+    .faq-category-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      text-align: left;
+      transition: all var(--transition);
+      margin-bottom: 4px;
+    }
+    .faq-category-btn:hover { background: var(--gray-100); color: var(--navy); }
+    .faq-category-btn.active { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; }
+    .faq-category-btn .cat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition:  var(--transition);
+    }
+    .faq-category-btn.active .cat-icon { background: rgba(0,201,167,0.2); }
+    .faq-category-btn .cat-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+    .cat-count {
+      margin-left: auto;
+      background: var(--gray-200);
+      color: var(--gray-600);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .faq-category-btn.active .cat-count { background: var(--teal); color: var(--white); }
+
+    .faq-search-box {
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .faq-search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--gray-200);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .faq-search-box input:focus { border-color: var(--teal); }
+    .faq-search-box .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      stroke: var(--gray-400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    /* FAQ ITEMS */
+    .faq-main h2 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+    .faq-main > p {
+      color: var(--gray-600);
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+    .faq-group {
+      display: none;
+    }
+    .faq-group.active {
+      display: block;
+      animation: fadeUp 0.4s ease both;
+    }
+    .faq-group-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .faq-group-title h3 { font-size: 1.3rem; }
+    .faq-group-badge {
+      background: var(--teal-light);
+      color: var(--teal-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .faq-item.open {
+      border-color: var(--teal);
+      box-shadow: 0 4px 24px rgba(0,201,167,0.1);
+    }
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px;
+      cursor: pointer;
+      background: var(--white);
+      transition: background var(--transition);
+    }
+    .faq-item.open .faq-question { background: var(--teal-light); }
+    .faq-question h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.4;
+    }
+    .faq-item.open .faq-question h4 { color: var(--teal-dark); }
+    .faq-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--transition);
+    }
+    .faq-item.open .faq-icon { background: var(--teal); transform: rotate(45deg); }
+    .faq-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--gray-600);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      transition: stroke var(--transition);
+    }
+    .faq-item.open .faq-icon svg { stroke: var(--white); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .faq-item.open .faq-answer { max-height: 400px; }
+    .faq-answer-inner {
+      padding: 0 24px 24px;
+      font-size: 15px;
+      color: var(--gray-600);
+      line-height: 1.8;
+    }
+    .faq-answer-inner ul {
+      margin-top: 12px;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .faq-answer-inner ul li { color: var(--gray-600); font-size: 14px; }
+
+    /* CTA SECTION */
+    .faq-cta {
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      border-radius: var(--radius-lg);
+      padding: 56px;
+      text-align: center;
+      margin-top: 48px;
+    }
+    .faq-cta h3 { color: var(--white); font-size: 1.8rem; margin-bottom: 12px; }
+    .faq-cta p { color: rgba(255,255,255,0.65); font-size: 15px; margin-bottom: 32px; }
+    .faq-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .faq-no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-400);
+      display: none;
+    }
+    .faq-no-results.show { display: block; }
+    .faq-no-results svg { width: 48px; height: 48px; stroke: var(--gray-300); fill: none; stroke-width: 1.5; margin: 0 auto 16px; }
+
+    @media (max-width: 900px) {
+      .faq-layout { grid-template-columns: 1fr; }
+      .faq-sidebar { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L12 6M12 18L12 22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12L6 12M18 12L22 12M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93"/><circle cx="12" cy="12" r="4"/></svg>
+    </div>
+    VaxCare Pro
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="faq.html" class="active">FAQ</a></li>
+    <li><a href="shop.html">Shop</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="services.html" class="btn btn-primary btn-sm">Book Now</a>
+  </div>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="contact.html">Contact</a>
+  <a href="faq.html" class="active">FAQ</a>
+  <a href="shop.html">Shop</a>
+  <a href="services.html" class="btn btn-primary mobile-btn">Book Appointment</a>
+</div>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <span>/</span>
+    <span>FAQ</span>
+  </div>
+  <h1 data-animate>Frequently Asked Questions</h1>
+  <p data-animate data-delay="1">Find clear answers to the most common questions about our vaccination services, booking process, safety protocols, and more.</p>
+</section>
+
+<!-- FAQ LAYOUT -->
+<div class="faq-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="faq-sidebar" data-animate>
+    <div class="faq-search-box">
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="faqSearch" placeholder="Search questions..."/>
+    </div>
+    <h3>Categories</h3>
+    <button class="faq-category-btn active" data-cat="general">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+      General
+      <span class="cat-count">6</span>
+    </button>
+    <button class="faq-category-btn" data-cat="booking">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Booking
+      <span class="cat-count">5</span>
+    </button>
+    <button class="faq-category-btn" data-cat="vaccines">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><path d="M10 2v3m4-3v3M8 10h8M8 14h5M3 21l3-3 9-9-3-3-9 9-3 3 3 3z"/></svg></span>
+      Vaccines
+      <span class="cat-count">5</span>
+    </button>
+    <button class="faq-category-btn" data-cat="safety">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      Safety
+      <span class="cat-count">4</span>
+    </button>
+    <button class="faq-category-btn" data-cat="insurance">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+      Insurance
+      <span class="cat-count">4</span>
+    </button>
+    <button class="faq-category-btn" data-cat="shop">
+      <span class="cat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+      Shop Orders
+      <span class="cat-count">4</span>
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="faq-main">
+    <h2>How can we help you?</h2>
+    <p>Browse categories on the left or search for a specific topic.</p>
+
+    <!-- GENERAL -->
+    <div class="faq-group active" id="faq-general">
+      <div class="faq-group-title">
+        <h3>General Questions</h3>
+        <span class="faq-group-badge">6 Questions</span>
+      </div>
+
+      <div class="faq-item open">
+        <div class="faq-question">
+          <h4>What is VaxCare Pro?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            VaxCare Pro is a comprehensive vaccination booking and healthcare platform that connects individuals with certified healthcare professionals for safe, convenient, and affordable vaccination services. We operate 15+ clinic locations across the country and offer home visit services.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Is VaxCare Pro certified by health authorities?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. VaxCare Pro is fully certified by the CDC, FDA, and accredited by the National Healthcare Association. All our medical staff hold valid licenses and our clinics meet the highest international standards for vaccine administration.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What age groups do you serve?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            We serve all age groups including:
+            <ul>
+              <li>Infants (0-12 months) — pediatric vaccination programs</li>
+              <li>Children (1-12 years) — childhood immunization schedule</li>
+              <li>Teenagers (13-17 years) — adolescent boosters</li>
+              <li>Adults (18-60 years) — adult vaccinations and travel vaccines</li>
+              <li>Seniors (60+ years) — flu, pneumonia, and shingles vaccines</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Do you offer home vaccination services?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes! Our certified nurses can visit your home, office, or any convenient location. Home visit services are available for individuals and group bookings (families, corporate teams). A small travel fee may apply depending on location.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What documents do I need to bring?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Please bring a valid government-issued photo ID, your vaccination records (if available), insurance card (if applicable), and your booking confirmation. For children, a parent or guardian must be present with the child's birth certificate.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How do I get my vaccination certificate?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Vaccination certificates are issued digitally via email within 30 minutes of completing your vaccination. Physical copies are available upon request. Our digital certificates are internationally recognized and WHO compliant.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKING -->
+    <div class="faq-group" id="faq-booking">
+      <div class="faq-group-title">
+        <h3>Booking Questions</h3>
+        <span class="faq-group-badge">5 Questions</span>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How do I book an appointment?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Booking is easy! You can book online through our Services page, call our hotline at +1 (800) 829-2273, use our mobile app, or walk in to any of our 15+ clinic locations. Online bookings receive instant confirmation.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Can I reschedule or cancel my appointment?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. Appointments can be rescheduled or cancelled up to 4 hours before the scheduled time with no penalty. Cancellations within 4 hours may incur a small fee. You can manage your appointments via our website, app, or by calling us directly.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How early should I arrive for my appointment?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            We recommend arriving 10-15 minutes before your appointment to complete any required paperwork and pre-vaccination health screening. First-time patients should arrive 20 minutes early.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Can I book for multiple family members at once?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Absolutely! Our Family Booking feature allows you to schedule appointments for your entire family in one session. You can select different vaccines and times for each family member. Family bundles of 3 or more also qualify for a 15% group discount.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Is there a waiting time at the clinic?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Pre-booked appointments have an average wait time of under 5 minutes. Walk-in patients may wait 15-30 minutes depending on clinic volume. After vaccination, we ask all patients to remain for a 15-minute observation period as standard safety protocol.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VACCINES -->
+    <div class="faq-group" id="faq-vaccines">
+      <div class="faq-group-title">
+        <h3>Vaccine Questions</h3>
+        <span class="faq-group-badge">5 Questions</span>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Which vaccines do you offer?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            We offer over 40 vaccines including:
+            <ul>
+              <li>COVID-19 (primary + boosters)</li>
+              <li>Influenza (seasonal flu)</li>
+              <li>Hepatitis A and B</li>
+              <li>MMR (Measles, Mumps, Rubella)</li>
+              <li>Tetanus, Diphtheria, Pertussis (Tdap)</li>
+              <li>Travel vaccines (Typhoid, Yellow Fever, Meningitis)</li>
+              <li>HPV, Varicella, Pneumococcal, and more</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Are your vaccines FDA approved?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. Every vaccine we administer is FDA-approved, WHO pre-qualified, and stored in certified cold-chain conditions. We source all vaccines directly from licensed manufacturers and run daily temperature monitoring at all storage facilities.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How do I know which vaccines I need?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Our free online Vaccine Assessment Tool helps you determine which vaccines are recommended based on your age, health status, travel plans, and vaccination history. You can also speak to one of our vaccine counselors for personalized guidance.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Can I receive multiple vaccines on the same day?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            In most cases, yes. Many vaccines can be safely administered on the same day. However, certain combinations require spacing for optimal effectiveness. Our medical staff will review your records and advise you on the safest schedule.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Do vaccines require a prescription?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Most vaccines at VaxCare Pro do not require a prior prescription. A brief health assessment is completed at the time of your visit by our licensed nurse. Certain specialized vaccines may require a doctor's referral.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAFETY -->
+    <div class="faq-group" id="faq-safety">
+      <div class="faq-group-title">
+        <h3>Safety Questions</h3>
+        <span class="faq-group-badge">4 Questions</span>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What side effects should I expect?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Common mild side effects include soreness at the injection site, mild fever, fatigue, or headache — all normal signs your immune system is responding. These typically resolve within 1-2 days. Severe reactions are extremely rare. Our staff will brief you on all specific side effects before each vaccination.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What if I have allergies?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Always disclose all known allergies to our healthcare staff before vaccination. We have emergency protocols and epinephrine on-site for any allergic reactions. Patients with severe allergy histories will be monitored for 30 minutes post-vaccination.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Are vaccines safe during pregnancy?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Certain vaccines are specifically recommended during pregnancy (like influenza and Tdap) for the protection of both mother and baby. Others should be avoided. Our team will review your pregnancy stage and advise the safest plan according to current CDC guidelines.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What hygiene protocols do your clinics follow?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            All our clinics follow WHO-level hygiene standards including single-use sterile needles, PPE for all staff, hospital-grade disinfectants, HEPA-filtered air systems, and regular third-party audits. All surfaces are sanitized between every patient.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSURANCE -->
+    <div class="faq-group" id="faq-insurance">
+      <div class="faq-group-title">
+        <h3>Insurance & Payment</h3>
+        <span class="faq-group-badge">4 Questions</span>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Does VaxCare Pro accept insurance?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. We accept most major insurance plans including Blue Cross Blue Shield, Aetna, Cigna, UnitedHealth, and Medicare/Medicaid. Please bring your insurance card to your appointment. You can verify your coverage online or by calling us.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What payment methods are accepted?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            We accept all major credit and debit cards (Visa, Mastercard, Amex), PayPal, Apple Pay, Google Pay, bank transfers, and cash. Online payments are secured with 256-bit SSL encryption.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Are there any free vaccination programs?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. We participate in several government-funded programs offering free vaccinations including childhood immunization programs, flu shots for seniors 65+, and community health drives. Check our Services page for current free vaccination campaigns in your area.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Do you offer payment plans?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            For premium vaccination packages and annual health plans, we offer interest-free installment payment options. Contact our billing team for details. We believe no one should skip a vaccination due to financial barriers.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div class="faq-group" id="faq-shop">
+      <div class="faq-group-title">
+        <h3>Shop & Orders</h3>
+        <span class="faq-group-badge">4 Questions</span>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What products does the VaxCare Shop sell?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Our shop offers health and immunity-related products including vitamin supplements, immunity boosters, first aid kits, vaccine record booklets, health monitoring devices, and premium wellness bundles curated by our medical team.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>How long does delivery take?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Standard delivery takes 3-5 business days. Express delivery (1-2 days) is available at checkout. Free shipping is included on all orders above $50. International shipping is available to 30+ countries.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>What is your return policy?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            We offer a 30-day hassle-free return policy on all unopened products. Opened products may be returned if defective. Healthcare consumables and vaccines are non-returnable for safety reasons. Refunds are processed within 5-7 business days.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h4>Can I track my order?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Yes. Once your order ships, you will receive a tracking number via email and SMS. You can track your order in real-time on our website or through our mobile app. Our customer support team is also available to assist with any delivery inquiries.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NO RESULTS -->
+    <div class="faq-no-results" id="noResults">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <h3>No results found</h3>
+      <p>Try different keywords or browse a category from the sidebar.</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="faq-cta" data-animate>
+      <h3>Still Have Questions?</h3>
+      <p>Our healthcare support team is standing by to help you with anything not covered above.</p>
+      <div class="faq-cta-btns">
+        <a href="contact.html" class="btn btn-primary btn-lg">Contact Support</a>
+        <a href="services.html" class="btn btn-outline-white btn-lg">Book Appointment</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 2L12 6M12 18L12 22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12L6 12M18 12L22 12M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          VaxCare Pro
+        </div>
+        <p>Trusted vaccination services delivered by certified healthcare professionals. Protecting communities one vaccine at a time.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="shop.html">Shop</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+18008292273">+1 (800) 829-2273</a></li>
+          <li><a href="mailto:hello@vaxcarepro.com">hello@vaxcarepro.com</a></li>
+          <li><a href="#">New York, NY 10001</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 VaxCare Pro. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">Fb</a>
+        <a href="#" class="social-btn">Tw</a>
+        <a href="#" class="social-btn">Ig</a>
+        <a href="#" class="social-btn">Li</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20));
+
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+  }, { threshold: 0.1 });
+  document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+  // FAQ Accordion
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const isOpen = item.classList.contains('open');
+      // Close all in same group
+      item.closest('.faq-group').querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Category switcher
+  document.querySelectorAll('.faq-category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.faq-category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      document.querySelectorAll('.faq-group').forEach(g => g.classList.remove('active'));
+      document.getElementById('faq-' + cat).classList.add('active');
+      document.getElementById('noResults').classList.remove('show');
+      document.getElementById('faqSearch').value = '';
+    });
+  });
+
+  // Search
+  document.getElementById('faqSearch').addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    if (!query) {
+      document.querySelectorAll('.faq-category-btn')[0].click();
+      return;
+    }
+    document.querySelectorAll('.faq-category-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.faq-group').forEach(g => g.classList.remove('active'));
+
+    let found = 0;
+    document.querySelectorAll('.faq-group').forEach(g => {
+      const items = g.querySelectorAll('.faq-item');
+      let groupHasMatch = false;
+      items.forEach(item => {
+        const q = item.querySelector('h4').textContent.toLowerCase();
+        const a = item.querySelector('.faq-answer-inner').textContent.toLowerCase();
+        if (q.includes(query) || a.includes(query)) {
+          item.style.display = '';
+          groupHasMatch = true;
+          found++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      if (groupHasMatch) { g.classList.add('active'); }
+    });
+
+    document.getElementById('noResults').classList.toggle('show', found === 0);
+  });
+</script>
+</body>
+</html>

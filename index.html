@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VaxCare Pro — Vaccination Booking System</title>
+  <link rel="stylesheet" href="file.css"/>
+  <style>
+    /* ============ HOME-SPECIFIC STYLES ============ */
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 55%, #0d3a5c 100%);
+      display: flex; align-items: center;
+      padding: 120px 5% 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -20%; right: -10%;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,201,167,0.15) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -30%; left: -10%;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,160,255,0.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      width: 90%; max-width: 1200px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .hero-badge { margin-bottom: 24px; }
+    .hero h1 {
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      color: var(--white); line-height: 1.1; margin-bottom: 24px;
+    }
+    .hero h1 span { color: var(--teal); }
+    .hero-desc { color: rgba(255,255,255,0.72); font-size: 18px; line-height: 1.7; margin-bottom: 40px; max-width: 500px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 40px; margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .stat h3 { font-size: 2.2rem; color: var(--white); font-family: var(--font-head); }
+    .stat p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+    .stat span { color: var(--teal); }
+
+    /* Hero Visual */
+    .hero-visual { position: relative; display: flex; justify-content: center; align-items: center; }
+    .hero-card-main {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px; padding: 32px;
+      width: 340px; animation: float 5s ease-in-out infinite;
+    }
+    .hc-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+    .hc-title { color: var(--white); font-size: 18px; font-weight: 700; font-family: var(--font-head); margin-bottom: 20px; }
+    .hc-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .hc-key { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .hc-val { font-size: 13px; color: var(--white); font-weight: 600; }
+    .hc-progress { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; margin: 20px 0; overflow: hidden; }
+    .hc-progress-bar { height: 100%; background: linear-gradient(90deg, var(--teal), #00a0ff); border-radius: 99px; width: 72%; }
+    .hc-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+    .hc-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), #00a0ff); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+    .hc-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--teal); font-weight: 600; }
+    .hc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); position: relative; }
+    .hc-dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--teal); animation: pulse-ring 1.5s ease-out infinite; }
+
+    .floating-pill {
+      position: absolute; background: white; border-radius: 99px;
+      padding: 10px 18px; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2); font-size: 13px; font-weight: 600; color: var(--navy);
+    }
+    .floating-pill .pill-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .pill-1 { top: 10%; left: -30px; animation: float 4s ease-in-out infinite 1s; }
+    .pill-2 { bottom: 12%; right: -20px; animation: float 4.5s ease-in-out infinite 0.5s; }
+    .pill-1 .pill-icon { background: #fff0e0; }
+    .pill-2 .pill-icon { background: var(--teal-light); }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+    }
+
+    /* BOOKING STRIP */
+    .booking-strip {
+      background: var(--white);
+      box-shadow: 0 -4px 0 var(--teal), var(--shadow-lg);
+      padding: 40px 5%;
+      position: relative; z-index: 10;
+    }
+    .booking-form {
+      display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 16px; align-items: end;
+      max-width: 1000px; margin: 0 auto;
+    }
+    .booking-form .form-group { margin-bottom: 0; }
+    .booking-form label { font-size: 12px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; }
+    .booking-form input, .booking-form select {
+      border-radius: var(--radius-sm); border: 2px solid var(--gray-200);
+      padding: 12px 16px; font-size: 15px; width: 100%;
+    }
+    @media (max-width: 900px) { .booking-form { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .booking-form { grid-template-columns: 1fr; } }
+
+    /* FEATURES SECTION */
+    .feature-icon { font-size: 0; }
+
+    /* HOW IT WORKS */
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; position: relative; }
+    .steps::before {
+      content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%;
+      height: 2px; background: linear-gradient(90deg, var(--teal), #00a0ff);
+      z-index: 0;
+    }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--navy); border: 4px solid var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 22px; font-weight: 800; font-family: var(--font-head); color: var(--teal);
+    }
+    .step h3 { font-size: 17px; color: var(--navy); margin-bottom: 10px; }
+    .step p { font-size: 14px; color: var(--gray-600); line-height: 1.7; }
+    @media (max-width: 768px) { .steps { grid-template-columns: 1fr 1fr; } .steps::before { display: none; } }
+    @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
+
+    /* VACCINES SECTION */
+    .vaccine-card {
+      background: var(--white); border-radius: var(--radius-md);
+      overflow: hidden; border: 1px solid var(--gray-200);
+      transition: all var(--transition); cursor: pointer;
+    }
+    .vaccine-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: transparent; }
+    .vaccine-card-top {
+      height: 120px; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .vaccine-card-top svg { width: 52px; height: 52px; stroke: var(--white); fill: none; stroke-width: 1.5; stroke-linecap: round; }
+    .vaccine-card-body { padding: 24px; }
+    .vaccine-card-body h4 { font-size: 17px; color: var(--navy); margin-bottom: 8px; }
+    .vaccine-card-body p { font-size: 13px; color: var(--gray-600); line-height: 1.6; margin-bottom: 16px; }
+    .vaccine-meta { display: flex; justify-content: space-between; align-items: center; }
+    .vaccine-price { font-size: 18px; font-weight: 700; color: var(--navy); font-family: var(--font-head); }
+    .vaccine-price span { font-size: 12px; color: var(--gray-400); font-weight: 400; }
+    .vaccine-card-top::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.15));
+    }
+
+    /* TESTIMONIALS */
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+    .testimonial {
+      background: var(--white); padding: 32px; border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200); position: relative;
+      transition: all var(--transition);
+    }
+    .testimonial:hover { border-color: var(--teal); box-shadow: var(--shadow-teal); }
+    .testimonial::before { content: '"'; font-size: 80px; line-height: 1; color: var(--teal-light); font-family: Georgia, serif; position: absolute; top: 16px; left: 24px; }
+    .testimonial-text { font-size: 15px; color: var(--gray-600); line-height: 1.8; margin-bottom: 24px; padding-top: 24px; }
+    .testimonial-author { display: flex; align-items: center; gap: 14px; }
+    .t-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), #00a0ff); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+    .t-name { font-weight: 700; font-size: 14px; color: var(--navy); }
+    .t-role { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+    .stars { color: var(--accent); font-size: 14px; letter-spacing: 1px; margin-bottom: 16px; }
+    @media (max-width: 768px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+    /* CTA BANNER */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--teal) 0%, #00a0ff 100%);
+      border-radius: var(--radius-lg); padding: 72px 60px;
+      display: flex; align-items: center; justify-content: space-between; gap: 40px;
+      position: relative; overflow: hidden;
+    }
+    .cta-banner::before {
+      content: ''; position: absolute; right: -60px; top: -60px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .cta-banner h2 { color: var(--white); font-size: clamp(1.8rem, 3vw, 2.8rem); margin-bottom: 12px; }
+    .cta-banner p { color: rgba(255,255,255,0.85); font-size: 16px; }
+    .cta-actions { display: flex; gap: 16px; flex-shrink: 0; flex-wrap: wrap; }
+    @media (max-width: 768px) { .cta-banner { flex-direction: column; padding: 48px 32px; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9z"/></svg>
+    </div>
+    VaxCare Pro
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="contact.html" class="btn btn-outline btn-sm">Sign In</a>
+    <a href="services.html" class="btn btn-primary btn-sm">Book Now</a>
+  </div>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="shop.html">Shop</a>
+  <a href="faq.html">FAQ</a>
+  <a href="contact.html">Contact</a>
+  <a href="services.html" class="btn btn-primary mobile-btn">Book Now</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-content animate-fadeUp">
+      <div class="hero-badge">
+        <span class="badge badge-teal">Trusted by 50,000+ Patients</span>
+      </div>
+      <h1>Your Health,<br/>Our <span>Priority.</span><br/>Book a Vaccine Today.</h1>
+      <p class="hero-desc">Schedule vaccinations for yourself and your family in minutes. Certified clinics, experienced professionals, complete peace of mind.</p>
+      <div class="hero-actions">
+        <a href="services.html" class="btn btn-primary btn-lg">Book Appointment</a>
+        <a href="about.html" class="btn btn-outline-white btn-lg">Learn More</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><h3>50<span>K+</span></h3><p>Patients Vaccinated</p></div>
+        <div class="stat"><h3>120<span>+</span></h3><p>Certified Clinics</p></div>
+        <div class="stat"><h3>98<span>%</span></h3><p>Satisfaction Rate</p></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-main">
+        <div class="hc-label">Appointment Confirmed</div>
+        <div class="hc-title">COVID-19 Booster Dose</div>
+        <div class="hc-row"><span class="hc-key">Patient</span><span class="hc-val">Sarah Mitchell</span></div>
+        <div class="hc-row"><span class="hc-key">Date</span><span class="hc-val">June 20, 2025</span></div>
+        <div class="hc-row"><span class="hc-key">Time</span><span class="hc-val">10:30 AM</span></div>
+        <div class="hc-row"><span class="hc-key">Clinic</span><span class="hc-val">VaxCare Downtown</span></div>
+        <div class="hc-progress"><div class="hc-progress-bar"></div></div>
+        <div class="hc-footer">
+          <div class="hc-avatar">SM</div>
+          <div class="hc-status"><div class="hc-dot"></div>Confirmed</div>
+        </div>
+      </div>
+      <div class="floating-pill pill-1">
+        <div class="pill-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <span>Vaccine Ready</span>
+      </div>
+      <div class="floating-pill pill-2">
+        <div class="pill-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <span>100% Certified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK BOOKING STRIP -->
+<section class="booking-strip">
+  <div class="booking-form">
+    <div class="form-group">
+      <label>Vaccine Type</label>
+      <select>
+        <option>Select Vaccine</option>
+        <option>COVID-19 Booster</option>
+        <option>Influenza (Flu)</option>
+        <option>Hepatitis B</option>
+        <option>MMR Vaccine</option>
+        <option>HPV Vaccine</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" placeholder="Enter your city or ZIP"/>
+    </div>
+    <div class="form-group">
+      <label>Preferred Date</label>
+      <input type="date"/>
+    </div>
+    <button class="btn btn-primary">Search</button>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="container">
+    <div class="section-header" data-animate>
+      <span class="badge badge-teal mb-4">Why VaxCare Pro</span>
+      <h2>Healthcare Made <span class="text-teal">Simple</span></h2>
+      <div class="divider"></div>
+      <p>We connect you to certified vaccination centers with seamless online booking, reminders, and digital records — all in one platform.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card" data-animate data-delay="1">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </div>
+        <h3>Easy Scheduling</h3>
+        <p>Book appointments in under 2 minutes. Choose your vaccine, location, and time slot that works for you.</p>
+      </div>
+      <div class="card" data-animate data-delay="2">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Certified Clinics</h3>
+        <p>All our partner clinics are government-certified with licensed healthcare professionals and quality-assured vaccines.</p>
+      </div>
+      <div class="card" data-animate data-delay="3">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3>Smart Reminders</h3>
+        <p>Get SMS and email reminders for upcoming doses and schedule follow-up appointments automatically.</p>
+      </div>
+      <div class="card" data-animate data-delay="4">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+        </div>
+        <h3>Digital Records</h3>
+        <p>Access your complete vaccination history anytime, anywhere. Download certificates for travel or work.</p>
+      </div>
+      <div class="card" data-animate data-delay="5">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <h3>Family Profiles</h3>
+        <p>Manage vaccination records for your entire family under one account — children, parents, and more.</p>
+      </div>
+      <div class="card" data-animate data-delay="6">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <h3>Home Vaccination</h3>
+        <p>Can't visit a clinic? Book a home visit and our certified nurse will come to you at a convenient time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header" data-animate>
+      <span class="badge badge-teal mb-4">How It Works</span>
+      <h2>4 Simple Steps to Protection</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="steps">
+      <div class="step" data-animate data-delay="1">
+        <div class="step-num">01</div>
+        <h3>Create Account</h3>
+        <p>Sign up in seconds and create profiles for every family member.</p>
+      </div>
+      <div class="step" data-animate data-delay="2">
+        <div class="step-num">02</div>
+        <h3>Choose Vaccine</h3>
+        <p>Browse our full catalog of available vaccines and read up on each one.</p>
+      </div>
+      <div class="step" data-animate data-delay="3">
+        <div class="step-num">03</div>
+        <h3>Book Appointment</h3>
+        <p>Select a nearby clinic, pick a time slot, and confirm your booking.</p>
+      </div>
+      <div class="step" data-animate data-delay="4">
+        <div class="step-num">04</div>
+        <h3>Get Vaccinated</h3>
+        <p>Arrive at the clinic and receive your vaccination. Record is stored automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VACCINES -->
+<section class="section">
+  <div class="container">
+    <div class="section-header" data-animate>
+      <span class="badge badge-teal mb-4">Our Vaccines</span>
+      <h2>Popular Vaccinations</h2>
+      <div class="divider"></div>
+      <p>Choose from our wide range of vaccinations for all age groups.</p>
+    </div>
+    <div class="grid-4">
+      <div class="vaccine-card" data-animate data-delay="1">
+        <div class="vaccine-card-top" style="background: linear-gradient(135deg, #0a7ea4, #00a0ff);">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="vaccine-card-body">
+          <h4>COVID-19 Booster</h4>
+          <p>Updated booster protecting against latest variants. Recommended annually.</p>
+          <div class="vaccine-meta">
+            <div class="vaccine-price">$45 <span>/dose</span></div>
+            <a href="services.html" class="btn btn-primary btn-sm">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="vaccine-card" data-animate data-delay="2">
+        <div class="vaccine-card-top" style="background: linear-gradient(135deg, #00a389, #00c9a7);">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <div class="vaccine-card-body">
+          <h4>Influenza (Flu)</h4>
+          <p>Annual flu vaccine for all ages. Best protection for the flu season ahead.</p>
+          <div class="vaccine-meta">
+            <div class="vaccine-price">$25 <span>/dose</span></div>
+            <a href="services.html" class="btn btn-primary btn-sm">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="vaccine-card" data-animate data-delay="3">
+        <div class="vaccine-card-top" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+        </div>
+        <div class="vaccine-card-body">
+          <h4>Hepatitis B</h4>
+          <p>3-dose series preventing hepatitis B virus infection and liver complications.</p>
+          <div class="vaccine-meta">
+            <div class="vaccine-price">$38 <span>/dose</span></div>
+            <a href="services.html" class="btn btn-primary btn-sm">Book</a>
+          </div>
+        </div>
+      </div>
+      <div class="vaccine-card" data-animate data-delay="4">
+        <div class="vaccine-card-top" style="background: linear-gradient(135deg, #e0673a, #f5a623);">
+          <svg viewBox="0 0 24 24"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 006 0V6a3 3 0 00-3-3zM6 3a3 3 0 00-3 3v12a3 3 0 006 0V6a3 3 0 00-3-3zM12 8v8M8 12h8"/></svg>
+        </div>
+        <div class="vaccine-card-body">
+          <h4>MMR Vaccine</h4>
+          <p>Combined vaccine for measles, mumps and rubella. Essential for children.</p>
+          <div class="vaccine-meta">
+            <div class="vaccine-price">$55 <span>/dose</span></div>
+            <a href="services.html" class="btn btn-primary btn-sm">Book</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-8">
+      <a href="shop.html" class="btn btn-outline">View All Vaccines</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header" data-animate>
+      <span class="badge badge-teal mb-4">Testimonials</span>
+      <h2>What Our Patients Say</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial" data-animate data-delay="1">
+        <div class="stars">* * * * *</div>
+        <p class="testimonial-text">Booking was incredibly easy. The reminder system ensured I never missed a dose for my kids. Highly recommended!</p>
+        <div class="testimonial-author">
+          <div class="t-avatar">AM</div>
+          <div><div class="t-name">Amanda Morrison</div><div class="t-role">Mother of 2</div></div>
+        </div>
+      </div>
+      <div class="testimonial" data-animate data-delay="2">
+        <div class="stars">* * * * *</div>
+        <p class="testimonial-text">As a senior citizen, I found the process very user-friendly. The home vaccination option was a game changer for me.</p>
+        <div class="testimonial-author">
+          <div class="t-avatar">RH</div>
+          <div><div class="t-name">Robert Hughes</div><div class="t-role">Retired Teacher</div></div>
+        </div>
+      </div>
+      <div class="testimonial" data-animate data-delay="3">
+        <div class="stars">* * * * *</div>
+        <p class="testimonial-text">Digital records are so convenient! I can download my vaccination certificate instantly for my travel visa applications.</p>
+        <div class="testimonial-author">
+          <div class="t-avatar">JP</div>
+          <div><div class="t-name">Julia Patel</div><div class="t-role">Frequent Traveler</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner" data-animate>
+      <div>
+        <h2>Ready to Protect Your Family?</h2>
+        <p>Join over 50,000 patients who trust VaxCare Pro for their vaccination needs.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="services.html" class="btn btn-outline-white btn-lg">Book Appointment</a>
+        <a href="contact.html" class="btn btn-lg" style="background:white; color:var(--teal);">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 2l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9z"/></svg>
+          </div>
+          VaxCare Pro
+        </div>
+        <p>Your trusted vaccination booking platform. Connecting patients with certified healthcare providers for a healthier tomorrow.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="shop.html">Shop</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+18001234567">+1 800 123 4567</a></li>
+          <li><a href="mailto:hello@vaxcare.pro">hello@vaxcare.pro</a></li>
+          <li><a href="#">123 Health Ave, NY</a></li>
+          <li><a href="#">Mon-Fri: 8am-8pm</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 VaxCare Pro. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">Fb</a>
+        <a href="#" class="social-btn">Tw</a>
+        <a href="#" class="social-btn">In</a>
+        <a href="#" class="social-btn">Yt</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
